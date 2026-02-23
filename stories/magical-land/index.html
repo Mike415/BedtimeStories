@@ -21,6 +21,139 @@
 
     <div id="root"></div>
     
+  
+    <script>
+(function() {
+  var BASE = '/BedtimeStories/';
+
+  function injectNav() {
+    // Don't inject twice
+    if (document.getElementById('bs-nav')) return;
+
+    var root = document.getElementById('root');
+    if (!root || !root.firstChild) return; // React hasn't mounted yet
+
+    // --- Subtle persistent "← All Stories" top-left link ---
+    var subtleLink = document.createElement('a');
+    subtleLink.id = 'bs-nav';
+    subtleLink.href = BASE;
+    subtleLink.textContent = '← All Stories';
+    subtleLink.style.cssText = [
+      'position:fixed',
+      'top:1rem',
+      'left:1.25rem',
+      'z-index:9999',
+      "font-family:'Crimson Pro', Georgia, serif",
+      'font-size:0.85rem',
+      'color:rgba(255,240,200,0.5)',
+      'text-decoration:none',
+      'letter-spacing:0.03em',
+      'transition:color 0.2s',
+      'backdrop-filter:blur(4px)',
+      '-webkit-backdrop-filter:blur(4px)',
+      'padding:0.25rem 0.5rem',
+      'border-radius:4px'
+    ].join(';');
+    subtleLink.addEventListener('mouseenter', function() {
+      this.style.color = 'rgba(255,240,200,0.95)';
+    });
+    subtleLink.addEventListener('mouseleave', function() {
+      this.style.color = 'rgba(255,240,200,0.5)';
+    });
+    document.body.appendChild(subtleLink);
+
+    // --- Last page: watch for "The End" text and show bottom buttons ---
+    var lastPageBar = null;
+
+    function checkForLastPage() {
+      // Look for "The End" text in the page - signals last page
+      var allText = document.body.innerText || '';
+      var isLastPage = allText.indexOf('The End') >= 0 || allText.indexOf('the end') >= 0;
+
+      if (isLastPage) {
+        if (!lastPageBar) {
+          lastPageBar = document.createElement('div');
+          lastPageBar.id = 'bs-last-page-bar';
+          lastPageBar.style.cssText = [
+            'position:fixed',
+            'bottom:5.5rem',
+            'left:0',
+            'right:0',
+            'display:flex',
+            'justify-content:center',
+            'gap:1rem',
+            'z-index:9999',
+            'pointer-events:none'
+          ].join(';');
+
+          var btnStyle = [
+            "font-family:'Crimson Pro', Georgia, serif",
+            'padding:0.6rem 1.4rem',
+            'border-radius:9999px',
+            'font-size:1rem',
+            'background:rgba(255,220,80,0.18)',
+            'color:rgba(255,240,200,0.92)',
+            'border:1px solid rgba(255,220,80,0.4)',
+            'backdrop-filter:blur(8px)',
+            '-webkit-backdrop-filter:blur(8px)',
+            'letter-spacing:0.04em',
+            'cursor:pointer',
+            'text-decoration:none',
+            'display:inline-block',
+            'pointer-events:auto'
+          ].join(';');
+
+          var readAgainBtn = document.createElement('button');
+          readAgainBtn.textContent = '↩ Read Again';
+          readAgainBtn.style.cssText = btnStyle;
+          readAgainBtn.addEventListener('click', function() {
+            // Click the first dot (page 1) to go back to cover
+            var dots = document.querySelectorAll('[class*="dot"], [class*="Dot"], button[aria-label]');
+            if (dots.length > 0) {
+              dots[0].click();
+            } else {
+              // Fallback: reload the page
+              window.location.reload();
+            }
+          });
+
+          var homeLink = document.createElement('a');
+          homeLink.href = BASE;
+          homeLink.textContent = '🏠 All Stories';
+          homeLink.style.cssText = btnStyle;
+
+          lastPageBar.appendChild(readAgainBtn);
+          lastPageBar.appendChild(homeLink);
+          document.body.appendChild(lastPageBar);
+        }
+      } else {
+        // Not on last page - remove the bar if it exists
+        if (lastPageBar) {
+          lastPageBar.remove();
+          lastPageBar = null;
+        }
+      }
+    }
+
+    // Watch for page changes via MutationObserver
+    var observer = new MutationObserver(function() {
+      checkForLastPage();
+    });
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+    checkForLastPage();
+  }
+
+  // Wait for React to mount
+  var mountInterval = setInterval(function() {
+    var root = document.getElementById('root');
+    if (root && root.firstChild) {
+      clearInterval(mountInterval);
+      injectNav();
+    }
+  }, 100);
+})();
+
+    </script>
   </body>
 
 </html>
