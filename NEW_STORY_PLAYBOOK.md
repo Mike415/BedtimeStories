@@ -79,7 +79,31 @@ The slug is a short, lowercase, hyphenated identifier for the story folder. Exam
 - `magical-land` (Jordan & Connor's Magical Land)
 - `dragon-garden` (a hypothetical new story)
 
-### 3b. Edit `client/src/pages/Home.tsx`
+### 3b. Verify `client/src/App.tsx` uses hash-based routing
+
+Because the story is served from a GitHub Pages subdirectory (e.g. `/BedtimeStories/stories/slug/`), the React app **must** use wouter's hash-based router. Without this, the app boots at a non-root path and falls through to the 404 page.
+
+Open `client/src/App.tsx` and confirm it imports `useHashLocation` and passes it to the `<Router>` component:
+
+```tsx
+import { Router, Route, Switch } from "wouter";
+import { useHashLocation } from "wouter/use-hash-location";
+
+function App() {
+  return (
+    <Router hook={useHashLocation}>
+      <Switch>
+        <Route path="/" component={Home} />
+        <Route component={Home} />
+      </Switch>
+    </Router>
+  );
+}
+```
+
+If it uses the default browser-history router (no `hook` prop), replace `App.tsx` with the pattern above before building. This is a **one-time fix** — once corrected in the sandbox project it persists for all future stories.
+
+### 3c. Edit `client/src/pages/Home.tsx`
 
 Replace the entire file content with the new story. The file has this structure:
 
@@ -118,14 +142,14 @@ const COVER = {
 
 **Keep all other code unchanged** — the animation engine, navigation, orientation-aware layout, and cover page component are all reusable and must not be modified.
 
-### 3c. Update `client/index.html`
+### 3d. Update `client/index.html`
 
 Change the `<title>` tag to match the new story title:
 ```html
 <title>Jordan &amp; Connor's Dragon Garden</title>
 ```
 
-### 3d. TypeScript check
+### 3e. TypeScript check
 
 ```bash
 cd /home/ubuntu/bedtime-book
@@ -258,6 +282,14 @@ After the PR is merged and GitHub Pages rebuilds (~30–60 seconds):
 2. Visit `https://mike415.github.io/BedtimeStories/stories/dragon-garden/` — the story should load correctly.
 3. Test on mobile in both portrait and landscape orientations.
 
+**Common failure — 404 on story page:** If the story URL shows a 404 / "Page Not Found" screen rendered *inside* the app (not a GitHub 404), the cause is browser-history routing. The app boots at the subdirectory path, wouter can't match `"/"`, and falls through to `NotFound`. Fix: ensure `App.tsx` uses `useHashLocation` (see Stage 3b above), rebuild, repackage, and push the updated `story-app.js`.
+
+**Pushing without `gh` auth:** If `gh auth status` shows "not logged in" and `git push` hangs asking for credentials, generate a classic Personal Access Token (PAT) with `repo` scope at `https://github.com/settings/tokens/new`, then push with the token embedded in the URL:
+
+```bash
+git push https://Mike415:<TOKEN>@github.com/Mike415/BedtimeStories.git HEAD:main
+```
+
 ---
 
 ## Quick Reference
@@ -282,6 +314,17 @@ After the PR is merged and GitHub Pages rebuilds (~30–60 seconds):
 |---|---|---|
 | `firefly` | Pip & Felix's Firefly Adventure | Pip the bunny, Felix the fox |
 | `magical-land` | Jordan & Connor's Magical Land | Jordan (girl, 4.5), Connor (boy, 2.25) |
+
+---
+
+---
+
+## Known Issues & Fixes
+
+| Symptom | Root Cause | Fix |
+|---|---|---|
+| Story page shows in-app 404 / "Page Not Found" | `App.tsx` uses browser-history router; wouter can't match `/` from a GitHub Pages subdirectory path | Switch to `useHashLocation` in `App.tsx` (see Stage 3b), rebuild, repackage, push |
+| `git push` hangs asking for username/password | `gh` CLI not authenticated in sandbox | Generate a PAT at `github.com/settings/tokens/new` (repo scope) and push via `https://Mike415:<TOKEN>@github.com/...` |
 
 ---
 
