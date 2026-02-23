@@ -1,0 +1,16 @@
+# Disable CDN caching for HTML entry points so updates are always served fresh
+/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/stories/firefly/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+/stories/magical-land/index.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Allow long-term caching for hashed JS/CSS assets (they never change content)
+/stories/firefly/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/stories/magical-land/assets/*
+  Cache-Control: public, max-age=31536000, immutable
