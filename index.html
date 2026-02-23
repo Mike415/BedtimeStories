@@ -31,7 +31,6 @@
         }
         .story-card {
             background: white;
-            padding: 30px;
             border-radius: 20px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             text-decoration: none;
@@ -42,18 +41,35 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            overflow: hidden;
         }
         .story-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
-        .story-card h2 {
-            font-family: 'Playfair Display', serif;
-            margin: 0 0 10px 0;
+        .story-card-cover {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            display: block;
         }
-        .story-card p {
-            font-size: 1.1rem;
-            opacity: 0.8;
+        .story-card-body {
+            padding: 20px 24px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+        .story-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.35rem;
+            margin: 0;
+            line-height: 1.3;
+        }
+        .story-card-characters {
+            font-size: 1rem;
+            opacity: 0.7;
+            margin: 0;
         }
     </style>
 </head>
@@ -61,20 +77,40 @@
     <h1>✨ Bedtime Stories</h1>
     <div class="story-list">
         <a href="stories/firefly/" class="story-card">
-            <h2>Pip & Felix</h2>
-            <p>Firefly Adventure</p>
+            <img class="story-card-cover"
+                 src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663317271153/ibPPhUfmdYZbFTJs.png"
+                 alt="Firefly Adventure cover" loading="lazy">
+            <div class="story-card-body">
+                <h2 class="story-card-title">Firefly Adventure</h2>
+                <p class="story-card-characters">Pip &amp; Felix</p>
+            </div>
         </a>
         <a href="stories/magical-land/" class="story-card">
-            <h2>Jordan & Connor</h2>
-            <p>Magical Land</p>
+            <img class="story-card-cover"
+                 src="https://private-us-east-1.manuscdn.com/sessionFile/n5o4rbnKodHae2KnxHH7RX/sandbox/WgTltwyZcTfEEVF9jjiUjn-img-1_1771860049000_na1fn_amMtY292ZXI.png"
+                 alt="Magical Land cover" loading="lazy">
+            <div class="story-card-body">
+                <h2 class="story-card-title">Magical Land</h2>
+                <p class="story-card-characters">Jordan &amp; Connor</p>
+            </div>
         </a>
         <a href="stories/connor-goes-to-school/" class="story-card">
-            <h2>Jordan &amp; Connor</h2>
-            <p>Connor Goes to School</p>
+            <img class="story-card-cover"
+                 src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663317271153/BvFdwGwEwdJosQKt.png"
+                 alt="Connor Goes to School cover" loading="lazy">
+            <div class="story-card-body">
+                <h2 class="story-card-title">Connor Goes to School</h2>
+                <p class="story-card-characters">Jordan &amp; Connor</p>
+            </div>
         </a>
         <a href="stories/new-zealand-travels/" class="story-card">
-            <h2>Jordan &amp; Connor</h2>
-            <p>New Zealand Travels</p>
+            <img class="story-card-cover"
+                 src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663317271153/vdAKPWbkaKjNqNfP.png"
+                 alt="New Zealand Travels cover" loading="lazy">
+            <div class="story-card-body">
+                <h2 class="story-card-title">New Zealand Travels</h2>
+                <p class="story-card-characters">Jordan &amp; Connor</p>
+            </div>
         </a>
         <!-- Future stories will be added here -->
     </div>
