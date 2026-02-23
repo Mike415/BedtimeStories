@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Story Admin — Bedtime Stories</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Crimson+Pro:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream:   #fdf6e8;
+      --warm:    #f5e8c8;
+      --gold:    #c8922a;
+      --gold-lt: #e8b84b;
+      --ink:     #2e2416;
+      --muted:   #7a6a50;
+      --border:  #ddd0b0;
+      --radius:  14px;
+      --shadow:  0 4px 24px rgba(80,50,10,0.10);
+    }
+
+    body {
+      font-family: 'Crimson Pro', Georgia, serif;
+      background: var(--cream);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 2rem 1rem 4rem;
+    }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    header a {
+      display: inline-block;
+      font-size: 0.9rem;
+      color: var(--muted);
+      text-decoration: none;
+      margin-bottom: 1rem;
+      letter-spacing: 0.04em;
+    }
+    header a:hover { color: var(--gold); }
+    header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      color: var(--ink);
+      line-height: 1.15;
+    }
+    header p {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.2rem 2.4rem;
+      width: 100%;
+      max-width: 580px;
+    }
+
+    /* ── Password gate ── */
+    #gate { display: flex; flex-direction: column; gap: 1.2rem; }
+    #gate h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      text-align: center;
+    }
+    #gate p { text-align: center; color: var(--muted); font-size: 1rem; }
+    #gate-error {
+      color: #b94040;
+      font-size: 0.95rem;
+      text-align: center;
+      min-height: 1.2em;
+    }
+
+    /* ── Form ── */
+    #form-panel { display: none; flex-direction: column; gap: 1.5rem; }
+    #form-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 0.4rem; }
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    label span.req { color: var(--gold); margin-left: 2px; }
+    input[type="text"],
+    input[type="password"],
+    textarea,
+    select {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 1.05rem;
+      color: var(--ink);
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      width: 100%;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      border-color: var(--gold);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.55; }
+    .hint { font-size: 0.88rem; color: var(--muted); font-style: italic; }
+
+    /* ── Checkbox group ── */
+    .check-group { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+    .check-group label {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-size: 0.95rem; font-weight: 400;
+      text-transform: none; letter-spacing: 0;
+      color: var(--ink); cursor: pointer;
+    }
+    .check-group input[type="checkbox"] {
+      width: 16px; height: 16px; accent-color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* ── Divider ── */
+    hr { border: none; border-top: 1px solid var(--border); }
+
+    /* ── Buttons ── */
+    .btn {
+      font-family: 'Crimson Pro', Georgia, serif;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-lt) 100%);
+      color: #fff;
+      box-shadow: 0 3px 12px rgba(200,146,42,0.35);
+      width: 100%;
+    }
+    .btn-primary:hover { box-shadow: 0 5px 18px rgba(200,146,42,0.45); }
+    .btn-secondary {
+      background: var(--warm);
+      color: var(--ink);
+      border: 1.5px solid var(--border);
+      width: 100%;
+    }
+    .btn-secondary:hover { background: var(--border); }
+
+    /* ── Preview panel ── */
+    #preview-panel { display: none; flex-direction: column; gap: 1.2rem; }
+    #preview-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+    }
+    #preview-panel p { color: var(--muted); font-size: 0.98rem; }
+    #email-preview {
+      background: var(--cream);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 320px;
+      overflow-y: auto;
+      color: var(--ink);
+    }
+    .btn-row { display: flex; gap: 0.8rem; }
+    .btn-row .btn { flex: 1; }
+
+    /* ── Success ── */
+    #success-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      text-align: center;
+      padding: 1rem 0;
+    }
+    #success-panel .icon { font-size: 3rem; }
+    #success-panel h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+    }
+    #success-panel p { color: var(--muted); font-size: 1rem; max-width: 380px; }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-align: center;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="../">← Back to Stories</a>
+    <h1>✨ Story Admin</h1>
+    <p>Commission a new bedtime story</p>
+  </header>
+
+  <div class="card">
+
+    <!-- ── Password Gate ── -->
+    <div id="gate">
+      <h2>🔒 Enter Password</h2>
+      <p>This page is for story creators only.</p>
+      <div class="field">
+        <label for="password">Password <span class="req">*</span></label>
+        <input type="password" id="password" placeholder="Enter password…" autocomplete="current-password" />
+      </div>
+      <div id="gate-error"></div>
+      <button class="btn btn-primary" onclick="checkPassword()">Unlock</button>
+    </div>
+
+    <!-- ── Story Form ── -->
+    <div id="form-panel">
+      <h2>📖 New Story Details</h2>
+
+      <div class="field">
+        <label for="story-title">Story Title <span class="req">*</span></label>
+        <input type="text" id="story-title" placeholder="e.g. Jordan & Connor and the Baby Dragon" />
+      </div>
+
+      <div class="field">
+        <label for="story-slug">URL Slug <span class="req">*</span></label>
+        <input type="text" id="story-slug" placeholder="e.g. baby-dragon" />
+        <span class="hint">Lowercase, hyphens only. This becomes the folder name: <code>stories/baby-dragon/</code></span>
+      </div>
+
+      <div class="field">
+        <label for="story-idea">Story Idea <span class="req">*</span></label>
+        <textarea id="story-idea" placeholder="Describe the adventure in a few sentences. e.g. Jordan and Connor discover a tiny baby dragon hiding under the garden shed. They help it find its way back to its family in the mountains, meeting a wise owl, a friendly deer, and a family of hedgehogs along the way."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="setting">Setting / World</label>
+        <input type="text" id="setting" placeholder="e.g. enchanted forest, snowy mountains, underwater kingdom…" />
+      </div>
+
+      <div class="field">
+        <label>Characters</label>
+        <div class="check-group">
+          <label><input type="checkbox" id="char-jordan" checked /> Jordan (girl, 4.5)</label>
+          <label><input type="checkbox" id="char-connor" checked /> Connor (boy, 2.25)</label>
+          <label><input type="checkbox" id="char-pip" /> Pip the Bunny</label>
+          <label><input type="checkbox" id="char-felix" /> Felix the Fox</label>
+        </div>
+        <input type="text" id="char-other" placeholder="Other characters (e.g. a baby dragon, a wise owl…)" style="margin-top:0.5rem" />
+      </div>
+
+      <div class="field">
+        <label for="mood">Mood / Tone</label>
+        <select id="mood">
+          <option value="warm and cozy">Warm and cozy (default bedtime feel)</option>
+          <option value="exciting and adventurous">Exciting and adventurous</option>
+          <option value="funny and silly">Funny and silly</option>
+          <option value="gentle and dreamy">Gentle and dreamy</option>
+          <option value="magical and mysterious">Magical and mysterious</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="special-notes">Special Notes</label>
+        <textarea id="special-notes" placeholder="Anything specific to include or avoid. e.g. Connor should have a funny moment with a hedgehog. End with them falling asleep under the stars." style="min-height:70px"></textarea>
+      </div>
+
+      <hr />
+
+      <button class="btn btn-primary" onclick="buildPreview()">Preview Email →</button>
+    </div>
+
+    <!-- ── Email Preview ── -->
+    <div id="preview-panel">
+      <h2>📧 Email Preview</h2>
+      <p>Review the email below, then send it to Manus to build the story.</p>
+      <pre id="email-preview"></pre>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showForm()">← Edit</button>
+        <button class="btn btn-primary" onclick="sendEmail()">Send to Manus ✉️</button>
+      </div>
+    </div>
+
+    <!-- ── Success ── -->
+    <div id="success-panel">
+      <div class="icon">🌙</div>
+      <h2>Story Request Sent!</h2>
+      <p>Manus has received your story idea and will build the new book. Check back in a little while — a new story will appear on the homepage once the pull request is merged.</p>
+      <button class="btn btn-secondary" onclick="resetForm()" style="max-width:220px;margin-top:0.5rem">Request Another Story</button>
+    </div>
+
+  </div>
+
+  <footer>
+    Emails are sent to <a href="mailto:mmorelli553@manus.bot">mmorelli553@manus.bot</a> ·
+    <a href="../NEW_STORY_PLAYBOOK.md" target="_blank">View Playbook</a>
+  </footer>
+
+  <script>
+    const MANUS_EMAIL = "mmorelli553@manus.bot";
+    const PASSWORD    = "JordanConnor";
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function show(id)  { document.getElementById(id).style.display = "flex"; }
+    function hide(id)  { document.getElementById(id).style.display = "none"; }
+    function val(id)   { return document.getElementById(id).value.trim(); }
+    function checked(id) { return document.getElementById(id).checked; }
+
+    // Auto-generate slug from title
+    document.getElementById("story-title").addEventListener("input", function () {
+      const slug = this.value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      document.getElementById("story-slug").value = slug;
+    });
+
+    // ── Password gate ─────────────────────────────────────────────────────────
+    document.getElementById("password").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") checkPassword();
+    });
+
+    function checkPassword() {
+      const input = document.getElementById("password").value;
+      if (input === PASSWORD) {
+        hide("gate");
+        show("form-panel");
+        document.getElementById("gate-error").textContent = "";
+      } else {
+        document.getElementById("gate-error").textContent = "Incorrect password. Please try again.";
+        document.getElementById("password").value = "";
+        document.getElementById("password").focus();
+      }
+    }
+
+    // ── Build characters list ─────────────────────────────────────────────────
+    function buildCharacters() {
+      const chars = [];
+      if (checked("char-jordan")) chars.push("Jordan (girl, age 4.5, strawberry-blonde hair, pink/floral clothes)");
+      if (checked("char-connor")) chars.push("Connor (boy, age 2.25, short dark hair, navy/dark clothes)");
+      if (checked("char-pip"))    chars.push("Pip the Bunny");
+      if (checked("char-felix"))  chars.push("Felix the Fox");
+      const other = val("char-other");
+      if (other) chars.push(other);
+      return chars.join(", ");
+    }
+
+    // ── Build email body ──────────────────────────────────────────────────────
+    function buildEmailBody() {
+      const title   = val("story-title");
+      const slug    = val("story-slug");
+      const idea    = val("story-idea");
+      const setting = val("setting");
+      const chars   = buildCharacters();
+      const mood    = val("mood");
+      const notes   = val("special-notes");
+
+      return `Hi Manus,
+
+Please build a new bedtime storybook and add it to my BedtimeStories GitHub repo (mike415/BedtimeStories).
+
+Follow the instructions in NEW_STORY_PLAYBOOK.md in the repo root exactly.
+
+--- STORY DETAILS ---
+
+Title: ${title}
+URL Slug: ${slug}
+
+Story Idea:
+${idea}
+
+Setting / World: ${setting || "(your creative choice)"}
+
+Characters: ${chars || "(your creative choice)"}
+
+Mood / Tone: ${mood}
+
+Special Notes:
+${notes || "None."}
+
+--- END OF DETAILS ---
+
+Steps to complete:
+1. Write a 10-page story + cover using the details above, following the playbook's story structure and writing guidelines.
+2. Generate 11 watercolor illustrations (cover + 10 pages) using the playbook's prompt template.
+3. Build the story app in /home/ubuntu/bedtime-book by replacing client/src/pages/Home.tsx with the new story content.
+4. Run the packaging script from the playbook to create stories/${slug}/ with story-app.js, story-app.css, and index.html.
+5. Push a pull request to mike415/BedtimeStories with the new story folder and an updated homepage card.
+6. Report back with the PR link.
+
+Thank you!`;
+    }
+
+    // ── Preview ───────────────────────────────────────────────────────────────
+    function buildPreview() {
+      const title = val("story-title");
+      const slug  = val("story-slug");
+      const idea  = val("story-idea");
+
+      if (!title || !slug || !idea) {
+        alert("Please fill in the Story Title, URL Slug, and Story Idea before previewing.");
+        return;
+      }
+
+      document.getElementById("email-preview").textContent = buildEmailBody();
+      hide("form-panel");
+      show("preview-panel");
+    }
+
+    function showForm() {
+      hide("preview-panel");
+      show("form-panel");
+    }
+
+    // ── Send ──────────────────────────────────────────────────────────────────
+    function sendEmail() {
+      const title = val("story-title");
+      const body  = buildEmailBody();
+      const subject = encodeURIComponent(`New Bedtime Story Request: ${title}`);
+      const bodyEnc = encodeURIComponent(body);
+      const mailto = `mailto:${MANUS_EMAIL}?subject=${subject}&body=${bodyEnc}`;
+
+      // Open mail client
+      window.location.href = mailto;
+
+      // Show success after a short delay (mail client opens async)
+      setTimeout(() => {
+        hide("preview-panel");
+        show("success-panel");
+      }, 1200);
+    }
+
+    // ── Reset ─────────────────────────────────────────────────────────────────
+    function resetForm() {
+      ["story-title","story-slug","story-idea","setting","char-other","special-notes"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
+      document.getElementById("char-jordan").checked = true;
+      document.getElementById("char-connor").checked = true;
+      document.getElementById("char-pip").checked = false;
+      document.getElementById("char-felix").checked = false;
+      document.getElementById("mood").selectedIndex = 0;
+      hide("success-panel");
+      show("form-panel");
+    }
+  </script>
+
+</body>
+</html>
